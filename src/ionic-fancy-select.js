@@ -90,9 +90,6 @@ angular.module("ionic-fancy-select", ["ionic"])
         scope.modal.remove();
       });
       
-      scope.getItemText = function(item) {
-        return scope.textProperty ? item[scope.textProperty] : item;
-      };
       
       scope.getItemValue = function(item) {
         return scope.valueProperty ? item[scope.valueProperty] : item;
@@ -102,28 +99,25 @@ angular.module("ionic-fancy-select", ["ionic"])
       scope.getText = function(value) {
         // Push the values into a temporary array so that they can be iterated through
         var temp;
-        if (scope.multiSelect) {
-          temp = value ? value : []; // In case it hasn't been defined yet
-        } else {
-          temp = (value === null || (typeof value === "undefined")) ? [] : [value]; // Make sure it's in an array, anything other than null/undefined is ok
-        }
+        
+        temp = value ? value : []; // In case it hasn't been defined yet
 
         var text = "";
-        if (temp.length) {
+        //console.log(value);
           // Concatenate the list of selected items
-          angular.forEach(scope.items, function(item, key) {
-            for (var i = 0; i < temp.length; i++) {
-              if (scope.getItemValue(item) == temp[i]) {
-                text += (text.length ? ", " : "") + scope.getItemText(item);
-                break;
+            angular.forEach(temp, function(i, k) {
+              //c//onsole.log(k);
+              //console.log(i);
+              if (i.checked == true) {
+                text += (text.length ? ", " : "") + k;
               }
-            }
-          });
+              
+            
+            });
+  
           
-        } else {
-          // Just use the default text
-          text = scope.defaultText;
-          
+        if(text == ""){
+          text = "Nothing Selected";
         }
 
         // If a callback has been specified for the text
@@ -175,20 +169,25 @@ angular.module("ionic-fancy-select", ["ionic"])
       scope.validate = function(item) {
         if (scope.multiSelect) {
           // Need to scan the list for selected items and push them into the value list
-          scope.value = [];
+          scope.value = {};
 
-          if (scope.items) {
-            angular.forEach(scope.items, function(item, key) {
-              if (item[scope.checkedProperty]) {
-                scope.value[scope.value.length] = scope.getItemValue(item);
-              }
-            });
-          }
-
+          angular.forEach(scope.items, function(item, key) {
+            scope.value[key] = item;
+          });
+console.log(scope.items);
+console.log(scope.value);
         } else {
           // Just use the current item
-          scope.value = scope.getItemValue(item);
-
+          scope.value = {};
+          angular.forEach(scope.items, function(candItem, candKey) {
+            if (candKey === item) {
+                candItem.checked = true;
+            } else {
+                candItem.checked = false;
+            }
+            scope.value[candKey] = candItem;
+          });
+          
         }
 
         scope.hideItems();
